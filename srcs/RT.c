@@ -17,9 +17,8 @@
 #include <stdio.h>
 
 typedef struct {
-    vec3 center;
-    float radius;
-    vec3 color;
+    vec4 center;
+    vec4 color;
 } Sphere;
 
 static vec2 vertices[6] = {
@@ -125,6 +124,7 @@ int main(void) {
     glLinkProgram(program);
 
     GLint resolution_location = glGetUniformLocation(program, "resolution");
+    GLint numberObjects_location = glGetUniformLocation(program, "numberObjects");
 
     GLuint vertex_array;
     glGenVertexArrays(1, &vertex_array);
@@ -133,17 +133,19 @@ int main(void) {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
 
     // Sphere data
-    Sphere sphere[1] = {{ {0.0f, 0.0f, -5.0f}, 1.0f, {1.0f, 0.0f, 0.0f} }};
+    Sphere sphere[2] = {{ {0.0f, 0.0f, -5.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 0.0f} },
+                        { {0.0f, 0.0f, -5.0f, 0.3f}, {1.0f, 0.0f, 0.0f, 0.0f} }};
     
 
     GLuint sphereBuffer;
     glGenBuffers(1, &sphereBuffer);
     glBindBuffer(GL_UNIFORM_BUFFER, sphereBuffer);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere[1]), &sphere, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(sphere), &sphere, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, sphereBuffer);
 
     double previousTime = glfwGetTime();
     int frameCount = 0;
+
 
     while (!glfwWindowShouldClose(window)) {
         double currentTime = glfwGetTime();
@@ -162,11 +164,12 @@ int main(void) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(program);
-        glUniform2f(resolution_location, (float)width + glfwGetTime(), (float)height);
+        glUniform2f(resolution_location, (float)width, (float)height);
+        glUniform1i(numberObjects_location, 2);
         
         sphere[0].center[0] = 4.0f * cos(glfwGetTime());  // Example of moving the sphere
         sphere[0].center[1] = 4.0f * sin(glfwGetTime());  // Example of moving the sphere
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Sphere[1]), &sphere);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(sphere), &sphere);
 
         glBindVertexArray(vertex_array);
         glDrawArrays(GL_TRIANGLES, 0, 6);
