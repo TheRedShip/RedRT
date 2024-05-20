@@ -1,18 +1,27 @@
 #version 330 core
 out vec4 fragColor;
+
 uniform vec2 resolution;
 uniform int numberObjects;
 
 struct Sphere {
-	vec4 center;
-	vec4 color;
+    vec4 center;
+    vec4 color;
 };
 
-layout(std140) uniform Spheres {
-	Sphere spheres[];
+struct hit_info {
+	vec3 	position;
+	vec3 	normal;
+	float	distance;
+	Sphere obj;
 };
 
-bool raySphereIntersect(vec3 rayOrigin, vec3 rayDir, Sphere sphere, out vec3 hitPoint) {
+layout(std140) uniform SphereBlock {
+    Sphere spheres[100];
+};
+
+bool raySphereIntersect(vec3 rayOrigin, vec3 rayDir, Sphere sphere, out hit_info hit)
+{
 	vec3 oc = rayOrigin - sphere.center.xyz;
 	float a = dot(rayDir, rayDir);
 	float b = 2.0 * dot(oc, rayDir);
@@ -20,45 +29,35 @@ bool raySphereIntersect(vec3 rayOrigin, vec3 rayDir, Sphere sphere, out vec3 hit
 	float discriminant = b * b - 4 * a * c;
 	if (discriminant < 0.0) return false;
 	float t = (-b - sqrt(discriminant)) / (2.0 * a);
-	hitPoint = rayOrigin + t * rayDir;
+	hit.position = rayOrigin + t * rayDir;
+	hit.normal = normalize(hit.position - sphere.center.xyz);
+	hit.distance = t;
 	return true;
 }
 
-vec3	hit_objects(vec3 rayOrigin, vec3 rayDir)
+bool	hit_objects(vec3 rayOrigin, vec3 rayDir, out hit_info hit)
 {
-	vec3 hitPoint;
-	if (raySphereIntersect(rayOrigin, rayDir, spheres[0], hitPoint)) {
-		return hitPoint;
+	for (int i = 0; i < numberObjects; i++) {
+		if (raySphereIntersect(rayOrigin, rayDir, spheres[i], hit)) {
+			hit.obj = spheres[i];
+			return true;
+		}
 	}
-	if (raySphereIntersect(rayOrigin, rayDir, spheres[1], hitPoint)) {
-		return hitPoint;
-	}
-	return vec3(0.0, 0.0, 0.0);
+	return (false);
 }
 
-void main() {
+void main()
+{
 	vec2 uv = gl_FragCoord.xy / resolution * 2.0 - 1.0;
 	uv.x *= resolution.x / resolution.y;
 	vec3 rayOrigin = vec3(0.0, 0.0, 0.0);
 	vec3 rayDir = normalize(vec3(uv, -1.0));
 
-	vec3 hitPoint = hit_objects(rayOrigin, rayDir);
-	
-	if (hitPoint != vec3(0.0, 0.0, 0.0)) {
-		// vec3 normal = normalize(hitPoint - hit_sphere.center.xyz);
-		// float intensity = dot(normal, normalize(vec3(1.0, 1.0, 1.0)));
-		fragColor = vec4(1.0);
-	}
-	else {
+	hit_info hit;
+	if (hit_objects(rayOrigin, rayDir, hit)) {
+		float intensity = dot(hit.normal, normalize(vec3(0.0, 1.0, 1.0)));
+		fragColor = hit.obj.color * intensity;
+	} else {
 		fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	}
-
-	// int i = 1;
-	// while (i < 2)
-	// {
-	// 	fragColor = vec4(i);
-	// 	return ;
-	// }
-
-
 };

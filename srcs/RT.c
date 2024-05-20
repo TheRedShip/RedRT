@@ -16,6 +16,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#define objNum 100
+
 typedef struct {
     vec4 center;
     vec4 color;
@@ -133,15 +135,21 @@ int main(void) {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
 
     // Sphere data
-    Sphere sphere[2] = {{ {0.0f, 0.0f, -5.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 0.0f} },
-                        { {0.0f, 0.0f, -5.0f, 0.3f}, {1.0f, 0.0f, 0.0f, 0.0f} }};
+    Sphere spheres[objNum] = {{ {0.0f, 0.0f, -5.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 0.0f} },
+                        { {0.0f, 0.0f, -5.0f, 0.3f}, {1.0f, 0.0f, 0.0f, 0.0f} },
+                        { {0.0f, 0.0f, -5.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 0.0f} }};
     
 
-    GLuint sphereBuffer;
-    glGenBuffers(1, &sphereBuffer);
-    glBindBuffer(GL_UNIFORM_BUFFER, sphereBuffer);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(sphere), &sphere, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, sphereBuffer);
+    GLuint sphere_buffer;
+    glGenBuffers(1, &sphere_buffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, sphere_buffer);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(spheres), spheres, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    GLuint blockIndex = glGetUniformBlockIndex(program, "SphereBlock");
+    glUniformBlockBinding(program, blockIndex, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, sphere_buffer);
+
 
     double previousTime = glfwGetTime();
     int frameCount = 0;
@@ -165,11 +173,14 @@ int main(void) {
 
         glUseProgram(program);
         glUniform2f(resolution_location, (float)width, (float)height);
-        glUniform1i(numberObjects_location, 2);
+        glUniform1i(numberObjects_location, objNum);
         
-        sphere[0].center[0] = 4.0f * cos(glfwGetTime());  // Example of moving the sphere
-        sphere[0].center[1] = 4.0f * sin(glfwGetTime());  // Example of moving the sphere
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(sphere), &sphere);
+        spheres[0].center[0] = 4.0f * cos(glfwGetTime());  // Example of moving the sphere
+        spheres[0].center[1] = 4.0f * sin(glfwGetTime());  // Example of moving the sphere
+        spheres[2].center[0] = 4.0f * -cos(glfwGetTime());  // Example of moving the sphere
+        spheres[2].center[1] = 4.0f * -sin(glfwGetTime());  // Example of moving the sphere
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(spheres), &spheres);
+
 
         glBindVertexArray(vertex_array);
         glDrawArrays(GL_TRIANGLES, 0, 6);
