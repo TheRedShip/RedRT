@@ -27,43 +27,6 @@ static vec2 vertices[6] = {
     { 1.0f, -1.0f }, { 1.0f,  1.0f }, { -1.0f, 1.0f }
 };
 
-static const char* vertex_shader_text = "#version 330 core\n"
-    "layout(location = 0) in vec2 vPos;\n"
-    "void main()\n"
-    "{\n"
-    "    gl_Position = vec4(vPos, 0.0, 1.0);\n"
-    "}\n";
-
-static const char* fragment_shader_text = "#version 330 core\n"
-    "out vec4 fragColor;\n"
-    "uniform vec2 resolution;\n"
-    "layout(std140) uniform Sphere {\n"
-    "    vec3 center;\n"
-    "    float radius;\n"
-    "    vec3 color;\n"
-    "};\n"
-    "bool raySphereIntersect(vec3 rayOrigin, vec3 rayDir, vec3 center, float radius, out vec3 hitPoint) {\n"
-    "    vec3 oc = rayOrigin - center;\n"
-    "    float a = dot(rayDir, rayDir);\n"
-    "    float b = 2.0 * dot(oc, rayDir);\n"
-    "    float c = dot(oc, oc) - radius * radius;\n"
-    "    float discriminant = b * b - 4 * a * c;\n"
-    "    if (discriminant < 0.0) return false;\n"
-    "    float t = (-b - sqrt(discriminant)) / (2.0 * a);\n"
-    "    hitPoint = rayOrigin + t * rayDir;\n"
-    "    return true;\n"
-    "}\n"
-    "void main() {\n"
-    "    vec2 uv = gl_FragCoord.xy / resolution;\n"
-    "    vec3 rayOrigin = vec3(0.0, 0.0, 0.0);\n"
-    "    vec3 rayDir = normalize(vec3(uv * 2.0 - 1.0, -1.0));\n"
-    "    vec3 hitPoint;\n"
-    "    if (raySphereIntersect(rayOrigin, rayDir, center, radius, hitPoint)) {\n"
-    "        fragColor = vec4(color, 1.0);\n"
-    "    } else {\n"
-    "        fragColor = vec4(0.0, 0.0, 0.0, 1.0);\n"
-    "    }\n"
-    "}\n";
 
 static void error_callback(int error, const char* description) {
     fprintf(stderr, "Error: %s\n", description);
@@ -72,6 +35,31 @@ static void error_callback(int error, const char* description) {
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+char* load_file(char const* path)
+{
+    char* buffer = 0;
+    long length = 0;
+    FILE * f = fopen (path, "rb");
+
+    if (f)
+    {
+      fseek (f, 0, SEEK_END);
+      length = ftell (f);
+      fseek (f, 0, SEEK_SET);
+      buffer = (char*)malloc ((length+1)*sizeof(char));
+      if (buffer)
+      {
+        fread (buffer, sizeof(char), length, f);
+      }
+      fclose (f);
+    }
+    else
+        return (NULL);
+    buffer[length] = '\0';
+
+    return buffer;
 }
 
 int main(void) {
@@ -94,7 +82,10 @@ int main(void) {
 
     glfwMakeContextCurrent(window);
 	gladLoadGL(glfwGetProcAddress);
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
+
+    const char *fragment_shader_text = load_file("srcs/shader/frag.glsl");
+    const char *vertex_shader_text = load_file("srcs/shader/vertex.glsl");
 
     GLuint vertex_buffer;
     glGenBuffers(1, &vertex_buffer);
@@ -105,9 +96,28 @@ int main(void) {
     glShaderSource(vertex_shader, 1, &vertex_shader_text, NULL);
     glCompileShader(vertex_shader);
 
+    GLint success = 0;
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+
+    if (!success)
+    {
+        char infoLog[512];
+        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
+        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s\n", infoLog);
+    }
     GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment_shader, 1, &fragment_shader_text, NULL);
     glCompileShader(fragment_shader);
+
+    success = 0;
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
+
+    if (!success)
+    {
+        char infoLog[512];
+        glGetShaderInfoLog(fragment_shader, 512, NULL, infoLog);
+        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s\n", infoLog);
+    }
 
     GLuint program = glCreateProgram();
     glAttachShader(program, vertex_shader);
@@ -123,18 +133,16 @@ int main(void) {
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
 
     // Sphere data
-    Sphere sphere = { {0.0f, 0.0f, -5.0f}, 1.0f, {1.0f, 0.0f, 0.0f} };
+    Sphere sphere[1] = {{ {0.0f, 0.0f, -5.0f}, 1.0f, {1.0f, 0.0f, 0.0f} }};
     
-    GLuint sphere_ubo;
-    glGenBuffers(1, &sphere_ubo);
-    glBindBuffer(GL_UNIFORM_BUFFER, sphere_ubo);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere), &sphere, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, sphere_ubo);
 
-    GLuint sphere_index = glGetUniformBlockIndex(program, "Sphere");
-    glUniformBlockBinding(program, sphere_index, 0);
+    GLuint sphereBuffer;
+    glGenBuffers(1, &sphereBuffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, sphereBuffer);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere[1]), &sphere, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, sphereBuffer);
 
-     double previousTime = glfwGetTime();
+    double previousTime = glfwGetTime();
     int frameCount = 0;
 
     while (!glfwWindowShouldClose(window)) {
@@ -154,12 +162,11 @@ int main(void) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(program);
-        glUniform2f(resolution_location, (float)width, (float)height);
+        glUniform2f(resolution_location, (float)width + glfwGetTime(), (float)height);
         
-        // Update sphere position or other properties here if needed
-        sphere.center[0] = 0.5f * sin(glfwGetTime());  // Example of moving the sphere
-        glBindBuffer(GL_UNIFORM_BUFFER, sphere_ubo);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Sphere), &sphere);
+        sphere[0].center[0] = 4.0f * cos(glfwGetTime());  // Example of moving the sphere
+        sphere[0].center[1] = 4.0f * sin(glfwGetTime());  // Example of moving the sphere
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Sphere[1]), &sphere);
 
         glBindVertexArray(vertex_array);
         glDrawArrays(GL_TRIANGLES, 0, 6);
