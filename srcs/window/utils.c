@@ -1,33 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   hooks.c                                            :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/21 14:25:59 by marvin            #+#    #+#             */
-/*   Updated: 2024/05/21 14:25:59 by marvin           ###   ########.fr       */
+/*   Created: 2024/05/21 19:31:00 by marvin            #+#    #+#             */
+/*   Updated: 2024/05/21 19:31:00 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RT.h"
 
-extern int frameCount;
-
-void	cursor_position_callback()
+int	getFPScounter()
 {
+	static int		fps = 0;
+	static double	previousTime = 0;
+	double			currentTime = glfwGetTime();
 	
-}
-
-void	error_callback(int error, const char* description)
-{
-	fprintf(stderr, "Error: %s\n", description);
-}
-
-void	key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	if (key == GLFW_KEY_SPACE)
-		frameCount = 0;
+	if (previousTime == 0)
+		previousTime = glfwGetTime();
+	
+	
+	fps++;
+	if (currentTime - previousTime >= 1.0)
+	{
+		printf("FPS: %d\n", fps);
+		
+		fps = 0;
+		previousTime = currentTime;
+	}
+	return (fps);
 }

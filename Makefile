@@ -32,9 +32,15 @@ OBJS_DIR	:=	.objs
 SRC_PARSING := 	parsing/parsing.c				\
 				parsing/utils.c
 
-SRC_WINDOW	:=	window/hooks.c
+SRC_WINDOW	:=	window/hooks.c					\
+				window/utils.c					\
+				window/shader.c
+
+SRC_SETUP	:=	setup/opengl.c					\
+				setup/scene.c					\
 
 ALL_SRCS	:=	$(SRC_PARSING) $(SRC_WINDOW)	\
+				$(SRC_SETUP)					\
 				RT.c gl.c
 				
 SRCS		:=	$(ALL_SRCS:%=$(SRCS_DIR)/%)

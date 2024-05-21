@@ -81,39 +81,35 @@ uint hash( uint x ) {
 
 
 
-// Compound versions of the hashing algorithm I whipped together.
 uint hash( uvec2 v ) { return hash( v.x ^ hash(v.y)                         ); }
 uint hash( uvec3 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z)             ); }
 uint hash( uvec4 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) ); }
 
 
 
-// Construct a float with half-open range [0:1] using low 23 bits.
-// All zeroes yields 0.0, all ones yields the next smallest representable value below 1.0.
 float floatConstruct( uint m ) {
-    const uint ieeeMantissa = 0x007FFFFFu; // binary32 mantissa bitmask
-    const uint ieeeOne      = 0x3F800000u; // 1.0 in IEEE binary32
+    const uint ieeeMantissa = 0x007FFFFFu; 
+    const uint ieeeOne      = 0x3F800000u; 
 
-    m &= ieeeMantissa;                     // Keep only mantissa bits (fractional part)
-    m |= ieeeOne;                          // Add fractional part to 1.0
+    m &= ieeeMantissa;                     
+    m |= ieeeOne;                          
 
-    float  f = uintBitsToFloat( m );       // Range [1:2]
-    return f - 1.0;                        // Range [0:1]
+    float  f = uintBitsToFloat( m );       
+    return f - 1.0;                        
 }
 
 
-
-// Pseudo-random value in half-open range [0:1].
 float randombis( float x ) { return floatConstruct(hash(floatBitsToUint(x))); }
 float randombis( vec2  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
 float randombis( vec3  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
 float randombis( vec4  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
 
-float random() {
+float random()
+{
 	if (rand_seed == 0)
 		rand_seed = uRand;
 	rand_seed += 1;
-	return randombis( vec3(gl_FragCoord.xy, uTime * rand_seed) );
+	return randombis(vec3(gl_FragCoord.xy, uTime * rand_seed));
 }
 
 void	new_ray(hit_info hit, out t_ray ray)
@@ -133,7 +129,7 @@ void	new_ray(hit_info hit, out t_ray ray)
 
 void	calcul_lc(hit_info hit, out vec3 light)
 {
-	vec3	light_pos = vec3(0,2,-2);
+	vec3	light_pos = vec3(0,0,0);
 	vec3	light_direction = normalize(light_pos - hit.position);
 	float	diffuse_ratio = 0.0;
 
@@ -147,10 +143,9 @@ void	calcul_lc(hit_info hit, out vec3 light)
 		// light += diffuse_ratio;
 	}
 
-	// if hit emission object;
-
 	if (hit.obj.mat.g > 0.0)
 		light += hit.obj.color.rgb * hit.obj.mat.g;
+
 }
 
 
@@ -173,7 +168,7 @@ vec3	per_pixel(t_ray ray)
 		}
 		else
 		{
-			// light += vec3(0.5,0.8,0.92);
+			// light += vec3(0.5, 0.8, 0.92);
 			break ;
 		}
 	}

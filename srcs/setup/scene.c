@@ -1,33 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   hooks.c                                            :+:      :+:    :+:   */
+/*   scene.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/21 14:25:59 by marvin            #+#    #+#             */
-/*   Updated: 2024/05/21 14:25:59 by marvin           ###   ########.fr       */
+/*   Created: 2024/05/21 20:04:41 by marvin            #+#    #+#             */
+/*   Updated: 2024/05/21 20:04:41 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "RT.h"
 
-extern int frameCount;
-
-void	cursor_position_callback()
+void	init_scene(Scene *scene)
 {
-	
-}
-
-void	error_callback(int error, const char* description)
-{
-	fprintf(stderr, "Error: %s\n", description);
-}
-
-void	key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	if (key == GLFW_KEY_SPACE)
-		frameCount = 0;
+	Sphere sphere[objNum] = {{ {-1.0f, 1.0f, -3.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0.0,1,0,0} },
+				{ {0.0f, 0.0f, -3.0f, 0.3f}, {0.0f, 0.0f, 1.0f, 0.0f}, {0.0,0,0,0} },
+				{ {0.0f, -1.5f, -3.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 0.0f}, {0.0,0,0,0} }};
+	for (int i = 0; i < objNum; i++)
+		scene->obj[i] = sphere[i];
 }

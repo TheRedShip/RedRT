@@ -10,6 +10,7 @@
 		"gl.h": "c",
 		"parsing.h": "c",
 		"stddef.h": "c",
-		"obj_struct.h": "c"
+		"obj_struct.h": "c",
+		"setup.h": "c"
 	}
 }

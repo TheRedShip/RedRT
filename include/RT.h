@@ -13,6 +13,8 @@
 #ifndef RT_H
 # define RT_H
 
+# define WIDTH 1920
+# define HEIGHT 1080
 # define objNum 100
 
 # define GLFW_INCLUDE_NONE
@@ -30,6 +32,12 @@
 # include "obj_struct.h"
 # include "parsing.h"
 # include "window.h"
+# include "setup.h"
 
+typedef struct s_scene
+{
+	Sphere	obj[objNum];
+	int		frameCount;
+} Scene;
 
 #endif

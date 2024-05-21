@@ -1,25 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   window.h                                           :+:      :+:    :+:   */
+/*   setup.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/21 14:25:02 by marvin            #+#    #+#             */
-/*   Updated: 2024/05/21 14:25:02 by marvin           ###   ########.fr       */
+/*   Created: 2024/05/21 18:51:27 by marvin            #+#    #+#             */
+/*   Updated: 2024/05/21 18:51:27 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WINDOW_H
-# define WINDOW_H
+#ifndef SETUP_H
+# define SETUP_H
 
 # include "RT.h"
 
-void	cursor_position_callback();
-void	error_callback(int error, const char* description);
-void	key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+typedef struct s_scene Scene;
 
-int		getFPScounter();
-void	variableToShader(GLuint program);
+void		init_scene(Scene *scene);
+
+GLFWwindow	*setupGLFW(void);
+GLuint		setupShaderProgram(void);
 
 #endif
