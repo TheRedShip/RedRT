@@ -163,7 +163,7 @@ vec3	per_pixel(t_ray ray)
 	vec3		color = vec3(1.0, 1.0, 1.0);
 
 	first_ray = ray;
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 50; i++)
 	{
 		if (hit_objects(ray, hit))
 		{
