@@ -1,6 +1,15 @@
 {
 	"files.associations": {
+		"*.cs": "csharp",
 		"stdlib.h": "c",
-		"rt.h": "c"
+		"rt.h": "c",
+		"window.h": "c",
+		"linmath.h": "c",
+		"glfw3.h": "c",
+		"stdio.h": "c",
+		"gl.h": "c",
+		"parsing.h": "c",
+		"stddef.h": "c",
+		"obj_struct.h": "c"
 	}
 }

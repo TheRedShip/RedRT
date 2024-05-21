@@ -13,12 +13,23 @@
 #ifndef RT_H
 # define RT_H
 
+# define objNum 100
+
 # define GLFW_INCLUDE_NONE
 # include <stdio.h>
 # include <unistd.h>
+# include <stdlib.h>
+# include <stddef.h>
+# include <stdio.h>
+
 
 # include "linmath.h"
 # include "glad/gl.h"
 # include "GLFW/glfw3.h"
+
+# include "obj_struct.h"
+# include "parsing.h"
+# include "window.h"
+
 
 #endif

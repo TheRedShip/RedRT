@@ -12,61 +12,12 @@
 
 #include "RT.h"
 
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdio.h>
-
-#define objNum 100
-
-typedef struct {
-	vec4	origin;
-	vec4	color;
-	vec4	mat;
-} Sphere;
+int frameCount = 0;
 
 static vec2 vertices[6] = {
 	{ -1.0f, -1.0f }, { 1.0f, -1.0f }, { -1.0f, 1.0f },
 	{ 1.0f, -1.0f }, { 1.0f,  1.0f }, { -1.0f, 1.0f }
 };
-
-
-static void error_callback(int error, const char* description) {
-	fprintf(stderr, "Error: %s\n", description);
-}
-
-int frameCount = 0;
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	if (key == GLFW_KEY_SPACE)
-		frameCount = 0;
-}
-
-char* load_file(char const* path)
-{
-	char* buffer = 0;
-	long length = 0;
-	FILE * f = fopen (path, "rb");
-
-	if (f)
-	{
-	  fseek (f, 0, SEEK_END);
-	  length = ftell (f);
-	  fseek (f, 0, SEEK_SET);
-	  buffer = (char*)malloc ((length+1)*sizeof(char));
-	  if (buffer)
-	  {
-		fread (buffer, sizeof(char), length, f);
-	  }
-	  fclose (f);
-	}
-	else
-		return (NULL);
-	buffer[length] = '\0';
-
-	return buffer;
-}
 
 int main(void) {
 	glfwSetErrorCallback(error_callback);

@@ -29,7 +29,13 @@ SRCS_DIR	:=	srcs
 
 OBJS_DIR	:=	.objs
 
-ALL_SRCS	:=	RT.c gl.c
+SRC_PARSING := 	parsing/parsing.c				\
+				parsing/utils.c
+
+SRC_WINDOW	:=	window/hooks.c
+
+ALL_SRCS	:=	$(SRC_PARSING) $(SRC_WINDOW)	\
+				RT.c gl.c
 				
 SRCS		:=	$(ALL_SRCS:%=$(SRCS_DIR)/%)
 
@@ -38,7 +44,7 @@ OBJS		:=	$(addprefix $(OBJS_DIR)/, $(SRCS:%.c=%.o))
 
 CC          :=	gcc
 
-IFLAGS	    :=	-I./include -L./lib -lglfw3 -lopengl32 -lgdi32
+IFLAGS	    :=	-g -I./include -L./lib -lglfw3 -lopengl32 -lgdi32
 
 RM          :=	del /f /s /q
 
