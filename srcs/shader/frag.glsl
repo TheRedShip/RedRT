@@ -6,6 +6,9 @@ uniform vec2 		resolution;
 uniform float 		uTime;
 uniform int 		uRand;
 
+uniform int			uFrameCount;
+uniform sampler2D	currentFrame;
+
 struct Sphere {
     vec4 	origin;
     vec4 	color;
@@ -141,7 +144,7 @@ void	calcul_lc(hit_info hit, out vec3 light)
 	if (!(shadow_hit.dist > 0.0 && shadow_hit.dist < length(light_pos - hit.position)))
 	{
 		diffuse_ratio = max(0.0, dot(hit.normal, light_direction));
-		light += diffuse_ratio;
+		// light += diffuse_ratio;
 	}
 
 	// if hit emission object;
@@ -170,7 +173,7 @@ vec3	per_pixel(t_ray ray)
 		}
 		else
 		{
-			light += vec3(0.5,0.8,0.92);
+			// light += vec3(0.5,0.8,0.92);
 			break ;
 		}
 	}
@@ -184,9 +187,11 @@ void main()
 	uv.x *= resolution.x / resolution.y;
 	t_ray ray = t_ray(vec3(0.0, 0.0, 0.0), vec3(uv, -1.0));
 	
-	vec3	color = vec3(0.0, 0.0, 0.0);
-	int		frame_acc = 1;
-	for (int i = 0; i < frame_acc; i++)
-		color += per_pixel(ray);
-	fragColor = vec4(color / frame_acc, 1.0);
+	vec4 color = vec4(per_pixel(ray), 1.0);
+	vec4 currentColor = texture(currentFrame, gl_FragCoord.xy / resolution.xy);
+	
+	if (uFrameCount == 1)
+		fragColor = color;
+	else
+		fragColor = mix(currentColor, color, 1.0 / float(uFrameCount));
 };

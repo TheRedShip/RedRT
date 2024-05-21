@@ -34,9 +34,13 @@ static void error_callback(int error, const char* description) {
 	fprintf(stderr, "Error: %s\n", description);
 }
 
+int frameCount = 0;
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	if (key == GLFW_KEY_SPACE)
+		frameCount = 0;
 }
 
 char* load_file(char const* path)
@@ -137,9 +141,9 @@ int main(void) {
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
 
 	// Sphere data
-	Sphere spheres[objNum] = {{ {0.0f, 0.0f, -5.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0.0,1,0,0} },
+	Sphere spheres[objNum] = {{ {0.0f, 1.5f, -5.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0.0,1,0,0} },
 						{ {0.0f, 0.0f, -5.0f, 0.3f}, {0.0f, 0.0f, 1.0f, 0.0f}, {0.5,0,0,0} },
-						{ {0.0f, 0.0f, -5.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 0.0f}, {0.5,0,0,0} }};
+						{ {0.0f, -1.5f, -5.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 0.0f}, {0.5,0,0,0} }};
 	
 
 	GLuint sphere_buffer;
@@ -152,41 +156,83 @@ int main(void) {
 	glUniformBlockBinding(program, blockIndex, 0);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, sphere_buffer);
 
+	int width, height;
+	glfwGetFramebufferSize(window, &width, &height);
+
+	GLuint currentFrameTex, accumFrameTex, framebuffer;
+    glGenTextures(1, &currentFrameTex);
+    glBindTexture(GL_TEXTURE_2D, currentFrameTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glGenTextures(1, &accumFrameTex);
+    glBindTexture(GL_TEXTURE_2D, accumFrameTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, currentFrameTex, 0);
+
 
 	double previousTime = glfwGetTime();
-	int frameCount = 0;
-
+	int fps = 0;
 	while (!glfwWindowShouldClose(window)) {
 		double currentTime = glfwGetTime();
+		fps++;
 		frameCount++;
 
 		if (currentTime - previousTime >= 1.0) {
-			printf("FPS: %d\n", frameCount);
+			printf("FPS: %d\n", fps);
 
-			frameCount = 0;
+			fps = 0;
 			previousTime = currentTime;
 		}
 
-		int width, height;
-		glfwGetFramebufferSize(window, &width, &height);
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT);
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 		glUseProgram(program);
 		glUniform2f(resolution_location, (float)width, (float)height);
 		glUniform1i(numberObjects_location, objNum);
 		glUniform1f(uTime_location, (float)(glfwGetTime()));
 		glUniform1i(glGetUniformLocation(program, "uRand"), rand());
-		
-		spheres[0].origin[0] = 1.5 * cos(glfwGetTime());  // Example of moving the sphere
-		spheres[0].origin[1] = 1.5 * sin(glfwGetTime());  // Example of moving the sphere
-		spheres[2].origin[0] = 1.5 * -cos(glfwGetTime());  // Example of moving the sphere
-		spheres[2].origin[2] = 1.5 * sin(glfwGetTime()) - 5.0;  // Example of moving the sphere
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(spheres), &spheres);
+		glUniform1i(glGetUniformLocation(program, "uFrameCount"), frameCount);
 
+		
+		// spheres[0].origin[0] = 1.5 * cos(glfwGetTime());  // Example of moving the sphere
+		// spheres[0].origin[1] = 1.5 * sin(glfwGetTime());  // Example of moving the sphere
+		// spheres[2].origin[0] = 1.5 * -cos(glfwGetTime());  // Example of moving the sphere
+		// spheres[2].origin[2] = 1.5 * sin(glfwGetTime()) - 5.0;  // Example of moving the sphere
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(spheres), &spheres);
 
 		glBindVertexArray(vertex_array);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glUseProgram(program);
+        glUniform1i(glGetUniformLocation(program, "currentFrame"), 0);
+        glUniform1i(glGetUniformLocation(program, "accumFrame"), 1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, currentFrameTex);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, accumFrameTex);
+
+		glBindVertexArray(vertex_array);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
+		GLuint temp = currentFrameTex;
+        currentFrameTex = accumFrameTex;
+        accumFrameTex = temp;
+
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, currentFrameTex, 0);
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
