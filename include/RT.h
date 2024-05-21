@@ -25,6 +25,7 @@
 # include <stdio.h>
 
 
+# include "cglm/cglm.h"
 # include "linmath.h"
 # include "glad/gl.h"
 # include "GLFW/glfw3.h"
@@ -33,10 +34,12 @@
 # include "parsing.h"
 # include "window.h"
 # include "setup.h"
+# include "camera.h"
 
 typedef struct s_scene
 {
 	Sphere	obj[objNum];
+	Camera	camera;
 	int		frameCount;
 } Scene;
 

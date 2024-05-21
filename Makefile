@@ -50,7 +50,7 @@ OBJS		:=	$(addprefix $(OBJS_DIR)/, $(SRCS:%.c=%.o))
 
 CC          :=	gcc
 
-IFLAGS	    :=	-g -I./include -L./lib -lglfw3 -lopengl32 -lgdi32
+IFLAGS	    :=	-g -I./include -L./lib -lglfw3 -lopengl32 -lgdi32 -lcglm
 
 RM          :=	del /f /s /q
 

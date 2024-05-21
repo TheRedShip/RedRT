@@ -9,11 +9,19 @@ uniform int 		uRand;
 uniform int			uFrameCount;
 uniform sampler2D	currentFrame;
 
+
 struct Sphere {
     vec4 	origin;
     vec4 	color;
 	vec4	mat;
 };
+
+struct Camera
+{
+	vec3	origin;
+	vec3	direction;
+};
+
 
 struct hit_info {
 	vec3 	position;
@@ -27,8 +35,16 @@ struct t_ray {
 	vec3 dir;
 };
 
-layout(std140) uniform SphereBlock {
-    Sphere spheres[100];
+
+struct Scene
+{
+	Sphere	obj[100];
+	Camera	camera;
+	int		frameCount;
+};
+
+layout(std140) uniform SceneBlock {
+    Scene scene;
 };
 
 int	rand_index = 0;
@@ -54,14 +70,14 @@ bool	hit_objects(t_ray ray, out hit_info hit)
 
 	hit.dist = -1.0f;
 	for (int i = 0; i < numberObjects; i++) {
-		if (spheres[i].origin.w <= 0.0f) continue;
-		if (raySphereIntersect(ray, spheres[i], tmp_hit)) {
+		if (scene.obj[i].origin.w <= 0.0f) continue;
+		if (raySphereIntersect(ray, scene.obj[i], tmp_hit)) {
 			if (tmp_hit.dist > 0.0f && (tmp_hit.dist < hit.dist || hit.dist < 0.0f))
 			{
 				hit.position = tmp_hit.position;
 				hit.normal = tmp_hit.normal;
 				hit.dist = tmp_hit.dist;
-				hit.obj = spheres[i];
+				hit.obj = scene.obj[i];
 			}
 		}
 	}
@@ -168,7 +184,7 @@ vec3	per_pixel(t_ray ray)
 		}
 		else
 		{
-			// light += vec3(0.5, 0.8, 0.92);
+			light += vec3(0.5, 0.8, 0.92);
 			break ;
 		}
 	}
@@ -180,7 +196,7 @@ void main()
 {
 	vec2 uv = gl_FragCoord.xy / resolution * 2.0 - 1.0;
 	uv.x *= resolution.x / resolution.y;
-	t_ray ray = t_ray(vec3(0.0, 0.0, 0.0), vec3(uv, -1.0));
+	t_ray ray = t_ray(scene.camera.origin, vec3(uv, -1.0));
 	
 	vec4 color = vec4(per_pixel(ray), 1.0);
 	vec4 currentColor = texture(currentFrame, gl_FragCoord.xy / resolution.xy);

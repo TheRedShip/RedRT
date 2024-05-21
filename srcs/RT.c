@@ -12,12 +12,10 @@
 
 #include "RT.h"
 
-int frameCount = 0;
+Scene scene;
 
 int main(void)
 {
-	Scene scene;
-
 	init_scene(&scene);
 
 	GLFWwindow *window = setupGLFW();
@@ -29,15 +27,15 @@ int main(void)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), (void*)0);
 
-	GLuint sphere_buffer;
-	glGenBuffers(1, &sphere_buffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, sphere_buffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(scene.obj), scene.obj, GL_DYNAMIC_DRAW);
+	GLuint scene_buffer;
+	glGenBuffers(1, &scene_buffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, scene_buffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(scene), &scene, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	GLuint blockIndex = glGetUniformBlockIndex(program, "SphereBlock");
+	GLuint blockIndex = glGetUniformBlockIndex(program, "SceneBlock");
 	glUniformBlockBinding(program, blockIndex, 0);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, sphere_buffer);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, scene_buffer);
 
 	GLuint currentFrameTex, accumFrameTex, framebuffer;
     glGenTextures(1, &currentFrameTex);
@@ -58,7 +56,7 @@ int main(void)
 
 	while (!glfwWindowShouldClose(window))
 	{
-		frameCount++;
+		scene.frameCount++;
 		getFPScounter();
 
 		glViewport(0, 0, WIDTH, HEIGHT);
@@ -67,12 +65,12 @@ int main(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 		variableToShader(program);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(scene), &scene);
 
 		// scene.obj[0].origin[0] = 1.5 * cos(glfwGetTime());  // Example of moving the sphere
 		// scene.obj[0].origin[1] = 1.5 * sin(glfwGetTime());  // Example of moving the sphere
 		// scene.obj[2].origin[0] = 1.5 * -cos(glfwGetTime());  // Example of moving the sphere
-		// scene.obj[2].origin[2] = 1.5 * sin(glfwGetTime()) - 5.0;  // Example of moving the sphere
-		// glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(scene.obj), &scene.obj);
+		// scene.obj[2].origin[1] = 1.5 * -sin(glfwGetTime());  // Example of moving the sphere
 
 		glBindVertexArray(vertex_array);
 		glDrawArrays(GL_TRIANGLES, 0, 6);

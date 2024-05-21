@@ -28,7 +28,7 @@ GLFWwindow *setupGLFW(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL Raytracer", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "RedRT", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();

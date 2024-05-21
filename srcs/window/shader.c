@@ -12,7 +12,7 @@
 
 #include "RT.h"
 
-extern int frameCount;
+extern Scene scene;
 
 void	variableToShader(GLuint program)
 {
@@ -20,7 +20,7 @@ void	variableToShader(GLuint program)
 	glUniform1i(glGetUniformLocation(program, "numberObjects"), objNum);
 	glUniform1f(glGetUniformLocation(program, "uTime"), (float)(glfwGetTime()));
 	glUniform1i(glGetUniformLocation(program, "uRand"), rand());
-	glUniform1i(glGetUniformLocation(program, "uFrameCount"), frameCount);
+	glUniform1i(glGetUniformLocation(program, "uFrameCount"), scene.frameCount);
 	glUniform1i(glGetUniformLocation(program, "currentFrame"), 0);
 	glUniform1i(glGetUniformLocation(program, "accumFrame"), 1);
 }
