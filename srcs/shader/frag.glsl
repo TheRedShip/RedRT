@@ -1,63 +1,192 @@
 #version 330 core
 out vec4 fragColor;
 
-uniform vec2 resolution;
-uniform int numberObjects;
+uniform int 		numberObjects;
+uniform vec2 		resolution;
+uniform float 		uTime;
+uniform int 		uRand;
 
 struct Sphere {
-    vec4 center;
-    vec4 color;
+    vec4 	origin;
+    vec4 	color;
+	vec4	mat;
 };
 
 struct hit_info {
 	vec3 	position;
 	vec3 	normal;
-	float	distance;
-	Sphere obj;
+	float	dist;
+	Sphere	obj;
+};
+
+struct t_ray {
+	vec3 origin;
+	vec3 dir;
 };
 
 layout(std140) uniform SphereBlock {
     Sphere spheres[100];
 };
 
-bool raySphereIntersect(vec3 rayOrigin, vec3 rayDir, Sphere sphere, out hit_info hit)
+int	rand_index = 0;
+
+bool raySphereIntersect(t_ray ray, Sphere sphere, out hit_info hit)
 {
-	vec3 oc = rayOrigin - sphere.center.xyz;
-	float a = dot(rayDir, rayDir);
-	float b = 2.0 * dot(oc, rayDir);
-	float c = dot(oc, oc) - sphere.center.w * sphere.center.w;
+	vec3 oc = ray.origin - sphere.origin.xyz;
+	float a = dot(ray.dir, ray.dir);
+	float b = 2.0 * dot(oc, ray.dir);
+	float c = dot(oc, oc) - sphere.origin.w * sphere.origin.w;
 	float discriminant = b * b - 4 * a * c;
 	if (discriminant < 0.0) return false;
 	float t = (-b - sqrt(discriminant)) / (2.0 * a);
-	hit.position = rayOrigin + t * rayDir;
-	hit.normal = normalize(hit.position - sphere.center.xyz);
-	hit.distance = t;
+	hit.position = ray.origin + t * ray.dir;
+	hit.normal = normalize(hit.position - sphere.origin.xyz);
+	hit.dist = t;
 	return true;
 }
 
-bool	hit_objects(vec3 rayOrigin, vec3 rayDir, out hit_info hit)
+bool	hit_objects(t_ray ray, out hit_info hit)
 {
+	hit_info tmp_hit;
+
+	hit.dist = -1.0f;
 	for (int i = 0; i < numberObjects; i++) {
-		if (raySphereIntersect(rayOrigin, rayDir, spheres[i], hit)) {
-			hit.obj = spheres[i];
-			return true;
+		if (spheres[i].origin.w <= 0.0f) continue;
+		if (raySphereIntersect(ray, spheres[i], tmp_hit)) {
+			if (tmp_hit.dist > 0.0f && (tmp_hit.dist < hit.dist || hit.dist < 0.0f))
+			{
+				hit.position = tmp_hit.position;
+				hit.normal = tmp_hit.normal;
+				hit.dist = tmp_hit.dist;
+				hit.obj = spheres[i];
+			}
 		}
 	}
-	return (false);
+	return (hit.dist >= 0.0f);
 }
+
+int rand_seed = 0;
+
+uint hash( uint x ) {
+    x += ( x << 10u );
+    x ^= ( x >>  6u );
+    x += ( x <<  3u );
+    x ^= ( x >> 11u );
+    x += ( x << 15u );
+    return x;
+}
+
+
+
+// Compound versions of the hashing algorithm I whipped together.
+uint hash( uvec2 v ) { return hash( v.x ^ hash(v.y)                         ); }
+uint hash( uvec3 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z)             ); }
+uint hash( uvec4 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) ); }
+
+
+
+// Construct a float with half-open range [0:1] using low 23 bits.
+// All zeroes yields 0.0, all ones yields the next smallest representable value below 1.0.
+float floatConstruct( uint m ) {
+    const uint ieeeMantissa = 0x007FFFFFu; // binary32 mantissa bitmask
+    const uint ieeeOne      = 0x3F800000u; // 1.0 in IEEE binary32
+
+    m &= ieeeMantissa;                     // Keep only mantissa bits (fractional part)
+    m |= ieeeOne;                          // Add fractional part to 1.0
+
+    float  f = uintBitsToFloat( m );       // Range [1:2]
+    return f - 1.0;                        // Range [0:1]
+}
+
+
+
+// Pseudo-random value in half-open range [0:1].
+float randombis( float x ) { return floatConstruct(hash(floatBitsToUint(x))); }
+float randombis( vec2  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+float randombis( vec3  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+float randombis( vec4  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+
+float random() {
+	if (rand_seed == 0)
+		rand_seed = uRand;
+	rand_seed += 1;
+	return randombis( vec3(gl_FragCoord.xy, uTime * rand_seed) );
+}
+
+void	new_ray(hit_info hit, out t_ray ray)
+{
+	vec3	rand;
+	vec3	in_unit_sphere;
+
+	in_unit_sphere = normalize(vec3(random(), random(), random()));
+	if (dot(in_unit_sphere, hit.normal) < 0.0f)
+		in_unit_sphere *= -1.0f;
+	
+	vec3 diffuse_dir = normalize(hit.normal + in_unit_sphere);
+	vec3 specular_dir = reflect(ray.dir, hit.normal);
+	ray.origin = hit.position + hit.normal * 0.001;
+	ray.dir = mix(diffuse_dir, specular_dir, hit.obj.mat.r);
+}
+
+void	calcul_lc(hit_info hit, out vec3 light)
+{
+	vec3	light_pos = vec3(0,2,-2);
+	vec3	light_direction = normalize(light_pos - hit.position);
+	float	diffuse_ratio = 0.0;
+
+	t_ray		shadow_ray = t_ray(hit.position + hit.normal * 0.001, light_direction);
+	hit_info	shadow_hit;
+
+	hit_objects(shadow_ray, shadow_hit);
+	if (!(shadow_hit.dist > 0.0 && shadow_hit.dist < length(light_pos - hit.position)))
+	{
+		diffuse_ratio = max(0.0, dot(hit.normal, light_direction));
+		light += diffuse_ratio;
+	}
+
+	// if hit emission object;
+
+	if (hit.obj.mat.g > 0.0)
+		light += hit.obj.color.rgb * hit.obj.mat.g;
+}
+
+
+
+vec3	per_pixel(t_ray ray)
+{
+	t_ray		first_ray;
+	hit_info	hit;
+	vec3		light = vec3(0.0, 0.0, 0.0);
+	vec3		color = vec3(1.0, 1.0, 1.0);
+
+	first_ray = ray;
+	for (int i = 0; i < 5; i++)
+	{
+		if (hit_objects(ray, hit))
+		{
+			new_ray(hit, ray);
+			color *= hit.obj.color.rgb;
+			calcul_lc(hit, light);
+		}
+		else
+		{
+			light += vec3(0.5,0.8,0.92);
+			break ;
+		}
+	}
+	return (color * light);
+}
+
 
 void main()
 {
 	vec2 uv = gl_FragCoord.xy / resolution * 2.0 - 1.0;
 	uv.x *= resolution.x / resolution.y;
-	vec3 rayOrigin = vec3(0.0, 0.0, 0.0);
-	vec3 rayDir = normalize(vec3(uv, -1.0));
-
-	hit_info hit;
-	if (hit_objects(rayOrigin, rayDir, hit)) {
-		float intensity = dot(hit.normal, normalize(vec3(0.0, 1.0, 1.0)));
-		fragColor = hit.obj.color * intensity;
-	} else {
-		fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-	}
+	t_ray ray = t_ray(vec3(0.0, 0.0, 0.0), vec3(uv, -1.0));
+	
+	vec3	color = vec3(0.0, 0.0, 0.0);
+	int		frame_acc = 1;
+	for (int i = 0; i < frame_acc; i++)
+		color += per_pixel(ray);
+	fragColor = vec4(color / frame_acc, 1.0);
 };
