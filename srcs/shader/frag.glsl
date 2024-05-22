@@ -39,7 +39,7 @@ struct t_ray {
 
 struct Scene
 {
-	Sphere	obj[100];
+	Sphere	obj[1000];
 	Camera	camera;
 	int		frameCount;
 };
@@ -70,7 +70,7 @@ bool	hit_objects(t_ray ray, out hit_info hit)
 
 	hit.dist = -1.0f;
 	for (int i = 0; i < numberObjects; i++) {
-		if (scene.obj[i].origin.w <= 0.0f) continue;
+		if (scene.obj[i].origin.w <= 0.0f) break;
 		if (raySphereIntersect(ray, scene.obj[i], tmp_hit)) {
 			if (tmp_hit.dist > 0.0f && (tmp_hit.dist < hit.dist || hit.dist < 0.0f))
 			{
@@ -120,40 +120,42 @@ float random()
 {
 	if (rand_seed == 0)
 		rand_seed = uRand;
-	rand_seed += 1;
+	rand_seed *= 2;
 	return randombis(vec3(gl_FragCoord.xy, uTime * rand_seed));
 }
 
-void	new_ray(hit_info hit, out t_ray ray)
+void	new_ray(hit_info hit, inout t_ray ray)
 {
 	vec3	rand;
 	vec3	in_unit_sphere;
 
 	in_unit_sphere = normalize(vec3((random() - 0.5) * 2, (random() - 0.5) * 2, (random() - 0.5) * 2));
+
 	if (dot(in_unit_sphere, hit.normal) < 0.0f)
 		in_unit_sphere *= -1.0f;
 	
 	vec3 diffuse_dir = normalize(hit.normal + in_unit_sphere);
 	vec3 specular_dir = reflect(ray.dir, hit.normal);
+	
 	ray.origin = hit.position + hit.normal * 0.001;
 	ray.dir = mix(diffuse_dir, specular_dir, hit.obj.mat.r);
 }
 
 void	calcul_lc(hit_info hit, out vec3 light)
 {
-	vec3	light_pos = vec3(0,0,0);
+	vec3	light_pos = vec3(0,5,0);
 	vec3	light_direction = normalize(light_pos - hit.position);
 	float	diffuse_ratio = 0.0;
 
-	t_ray		shadow_ray = t_ray(hit.position + hit.normal * 0.001, light_direction);
-	hit_info	shadow_hit;
+	// t_ray		shadow_ray = t_ray(hit.position + hit.normal * 0.001, light_direction);
+	// hit_info	shadow_hit;
 
-	hit_objects(shadow_ray, shadow_hit);
-	if (!(shadow_hit.dist > 0.0 && shadow_hit.dist < length(light_pos - hit.position)))
-	{
-		diffuse_ratio = max(0.0, dot(hit.normal, light_direction));
-		// light += diffuse_ratio;
-	}
+	// hit_objects(shadow_ray, shadow_hit);
+	// if (!(shadow_hit.dist > 0.0 && shadow_hit.dist < length(light_pos - hit.position)))
+	// {
+	// 	diffuse_ratio = max(0.0, dot(hit.normal, light_direction));
+	// 	light += diffuse_ratio;
+	// }
 
 	if (hit.obj.mat.g > 0.0)
 		light += hit.obj.color.rgb * hit.obj.mat.g;
@@ -173,6 +175,8 @@ vec3	per_pixel(t_ray ray)
 			new_ray(hit, ray);
 			color *= hit.obj.color.rgb;
 			calcul_lc(hit, light);
+			if (hit.obj.mat.g > 0.0)
+				break ;
 		}
 		else
 		{
@@ -217,18 +221,19 @@ t_ray	calculate_ray(vec2 uv)
 
 void main()
 {
-	vec2 uv = gl_FragCoord.xy / resolution * 2.0 - 1.0;
+	vec2 antialiasing = gl_FragCoord.xy;
+	antialiasing += vec2(random() - 0.5, random() - 0.5);
+
+	vec2 uv = antialiasing / resolution * 2.0 - 1.0;
 	uv.x *= resolution.x / resolution.y;
 
-	// fragColor = vec4(random());
-	// return ;
-
 	t_ray ray = calculate_ray(uv);
+	hit_info hit;
 
 	vec4 color = vec4(sqrt(per_pixel(ray)), 1.0);
 	vec4 currentColor = texture(currentFrame, gl_FragCoord.xy / resolution.xy);
 	
-	if (uFrameCount == 1)
+	if (uFrameCount == 0)
 		fragColor = color;
 	else
 		fragColor = mix(currentColor, color, 1.0 / float(uFrameCount));

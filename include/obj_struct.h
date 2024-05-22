@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   obj_struct.h                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ycontre <ycontre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 14:41:06 by marvin            #+#    #+#             */
-/*   Updated: 2024/05/21 14:41:06 by marvin           ###   ########.fr       */
+/*   Updated: 2024/05/22 18:27:35 by ycontre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@
 # include "RT.h"
 
 typedef struct {
-	vec4	origin;
-	vec4	color;
-	vec4	mat;
+	t_vec4	origin;
+	t_vec4	color;
+	t_vec4	mat;
 } Sphere;
 
 

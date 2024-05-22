@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   setup.c                                            :+:      :+:    :+:   */
+/*   opengl.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ycontre <ycontre@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 14:49:06 by marvin            #+#    #+#             */
-/*   Updated: 2024/05/21 14:49:06 by marvin           ###   ########.fr       */
+/*   Updated: 2024/05/22 16:53:15 by ycontre          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ GLFWwindow *setupGLFW(void)
 
 	glfwMakeContextCurrent(window);
 	gladLoadGL(glfwGetProcAddress);
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
 	return (window);
 }
