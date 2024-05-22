@@ -15,6 +15,7 @@
 		"camera.h": "c",
 		"xlocale": "c",
 		"vector": "c",
-		"settings.h": "c"
+		"settings.h": "c",
+		"cglm.h": "c"
 	}
 }

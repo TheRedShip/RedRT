@@ -14,7 +14,7 @@
 
 extern Scene scene;
 
-t_vec4 multiply_matrix_vector(mat4 m, t_vec4 vector)
+t_vec4 multiply_matrix_vector(float (*m)[4], t_vec4 vector)
 {
 	t_vec4 result;
 
@@ -28,6 +28,7 @@ t_vec4 multiply_matrix_vector(mat4 m, t_vec4 vector)
 void	move_camera(t_vec4 movement)
 {
 	t_vec4	rotate_movement;
+
 
 	rotate_movement = multiply_matrix_vector(scene.camera.rotation_matrix_x, movement);
 	rotate_movement = multiply_matrix_vector(scene.camera.rotation_matrix_y, rotate_movement);

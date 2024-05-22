@@ -181,7 +181,7 @@ vec3	per_pixel(t_ray ray)
 		}
 		else
 		{
-			light += vec3(0.5, 0.8, 0.92);
+			// light += vec3(0.5, 0.8, 0.92);
 			break ;
 		}
 	}
