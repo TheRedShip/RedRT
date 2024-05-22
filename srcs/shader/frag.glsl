@@ -48,7 +48,6 @@ layout(std140) uniform SceneBlock {
     Scene scene;
 };
 
-int	rand_index = 0;
 
 bool raySphereIntersect(t_ray ray, Sphere sphere, out hit_info hit)
 {
@@ -96,20 +95,16 @@ uint hash( uint x ) {
     return x;
 }
 
-
-
 uint hash( uvec2 v ) { return hash( v.x ^ hash(v.y)                         ); }
 uint hash( uvec3 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z)             ); }
 uint hash( uvec4 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) ); }
-
-
 
 float floatConstruct( uint m ) {
     const uint ieeeMantissa = 0x007FFFFFu; 
     const uint ieeeOne      = 0x3F800000u; 
 
-    m &= ieeeMantissa;                     
-    m |= ieeeOne;                          
+    m &= ieeeMantissa;
+    m |= ieeeOne;
 
     float  f = uintBitsToFloat( m );       
     return f - 1.0;                        
@@ -134,7 +129,7 @@ void	new_ray(hit_info hit, out t_ray ray)
 	vec3	rand;
 	vec3	in_unit_sphere;
 
-	in_unit_sphere = normalize(vec3(random(), random(), random()));
+	in_unit_sphere = normalize(vec3((random() - 0.5) * 2, (random() - 0.5) * 2, (random() - 0.5) * 2));
 	if (dot(in_unit_sphere, hit.normal) < 0.0f)
 		in_unit_sphere *= -1.0f;
 	
@@ -220,15 +215,17 @@ t_ray	calculate_ray(vec2 uv)
 	return (ray);
 }
 
-
 void main()
 {
 	vec2 uv = gl_FragCoord.xy / resolution * 2.0 - 1.0;
 	uv.x *= resolution.x / resolution.y;
 
+	// fragColor = vec4(random());
+	// return ;
+
 	t_ray ray = calculate_ray(uv);
 
-	vec4 color = vec4(per_pixel(ray), 1.0);
+	vec4 color = vec4(sqrt(per_pixel(ray)), 1.0);
 	vec4 currentColor = texture(currentFrame, gl_FragCoord.xy / resolution.xy);
 	
 	if (uFrameCount == 1)
