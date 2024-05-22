@@ -30,11 +30,19 @@
 # include "glad/gl.h"
 # include "GLFW/glfw3.h"
 
+typedef struct s_vec4 {
+    float x;
+    float y;
+    float z;
+	float w;
+} t_vec4;
+
 # include "obj_struct.h"
 # include "parsing.h"
 # include "window.h"
 # include "setup.h"
-# include "camera.h"
+# include "settings.h"
+
 
 typedef struct s_scene
 {

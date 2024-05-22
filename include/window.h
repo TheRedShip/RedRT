@@ -15,6 +15,8 @@
 
 # include "RT.h"
 
+void	move_camera(t_vec4 movement);
+
 void	cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 void	error_callback(int error, const char* description);
 void	key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

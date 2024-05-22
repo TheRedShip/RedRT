@@ -11,6 +11,10 @@
 		"parsing.h": "c",
 		"stddef.h": "c",
 		"obj_struct.h": "c",
-		"setup.h": "c"
+		"setup.h": "c",
+		"camera.h": "c",
+		"xlocale": "c",
+		"vector": "c",
+		"settings.h": "c"
 	}
 }

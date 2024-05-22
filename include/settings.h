@@ -1,24 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   camera.h                                           :+:      :+:    :+:   */
+/*   settings.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/21 20:19:11 by marvin            #+#    #+#             */
-/*   Updated: 2024/05/21 20:19:11 by marvin           ###   ########.fr       */
+/*   Created: 2024/05/22 01:48:22 by marvin            #+#    #+#             */
+/*   Updated: 2024/05/22 01:48:22 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CAMERA_H
-# define CAMERA_H
+#ifndef SETTINGS_H
+# define SETTINGS_H
 
 # include "RT.h"
 
 typedef struct s_camera
 {
-	vec3	origin;
-	vec3	direction;
+	t_vec4	origin;
+	t_vec4	direction;
+	mat4	rotation_matrix_x;
+	mat4	rotation_matrix_y;
 }	Camera;
 
 #endif

@@ -34,7 +34,8 @@ SRC_PARSING := 	parsing/parsing.c				\
 
 SRC_WINDOW	:=	window/hooks.c					\
 				window/utils.c					\
-				window/shader.c
+				window/shader.c					\
+				window/camera.c
 
 SRC_SETUP	:=	setup/opengl.c					\
 				setup/scene.c					\

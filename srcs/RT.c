@@ -14,6 +14,42 @@
 
 Scene scene;
 
+void	apply_rotation_matrix_x(float angle, float (*matrix)[4])
+{
+	float	cos_theta;
+	float	sin_theta;
+
+	cos_theta = cos(angle);
+	sin_theta = sin(angle);
+	matrix[0][0] = 1.0f;
+	matrix[0][1] = 0.0f;
+	matrix[0][2] = 0.0f;
+	matrix[1][0] = 0.0f;
+	matrix[1][1] = cos_theta;
+	matrix[1][2] = -sin_theta;
+	matrix[2][0] = 0.0f;
+	matrix[2][1] = sin_theta;
+	matrix[2][2] = cos_theta;
+}
+
+void	apply_rotation_matrix_y(float angle, float (*matrix)[4])
+{
+	float	cos_theta;
+	float	sin_theta;
+
+	cos_theta = cos(angle);
+	sin_theta = sin(angle);
+	matrix[0][0] = cos_theta;
+	matrix[0][1] = 0.0f;
+	matrix[0][2] = -sin_theta;
+	matrix[1][0] = 0.0f;
+	matrix[1][1] = 1.0f;
+	matrix[1][2] = 0.0f;
+	matrix[2][0] = sin_theta;
+	matrix[2][1] = 0.0f;
+	matrix[2][2] = cos_theta;
+}
+
 int main(void)
 {
 	init_scene(&scene);
@@ -56,6 +92,17 @@ int main(void)
 
 	while (!glfwWindowShouldClose(window))
 	{
+		apply_rotation_matrix_x(scene.camera.direction.x, scene.camera.rotation_matrix_x);
+		apply_rotation_matrix_y(scene.camera.direction.y, scene.camera.rotation_matrix_y);
+
+		// for (int i = 0; i < 3; i++)
+		// {
+		// 	for (int j = 0; j < 3; j++)
+		// 		printf("%f ", scene.camera.rotation_matrix_y[i][j]);
+		// 	printf("\n");
+		// }
+		// printf("\n");
+
 		scene.frameCount++;
 		getFPScounter();
 

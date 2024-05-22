@@ -21,5 +21,5 @@ void	init_scene(Scene *scene)
 	for (int i = 0; i < objNum; i++)
 		scene->obj[i] = sphere[i];
 
-	glm_vec3_zero(scene->camera.origin);
+	scene->camera.origin = (t_vec4){0.0f, 0.0f, 0.0f};
 }

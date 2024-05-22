@@ -511,7 +511,7 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define GL_FLOAT_MAT4x2 0x8B69
 #define GL_FLOAT_MAT4x3 0x8B6A
 #define GL_FLOAT_VEC2 0x8B50
-#define GL_FLOAT_VEC3 0x8B51
+#define GL_FLOAt_vec4 0x8B51
 #define GL_FLOAT_VEC4 0x8B52
 #define GL_FOG 0x0B60
 #define GL_FOG_BIT 0x00000080
@@ -625,7 +625,7 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define GL_INT_SAMPLER_BUFFER 0x8DD0
 #define GL_INT_SAMPLER_CUBE 0x8DCC
 #define GL_INT_VEC2 0x8B53
-#define GL_INT_VEC3 0x8B54
+#define GL_INt_vec4 0x8B54
 #define GL_INT_VEC4 0x8B55
 #define GL_INVALID_ENUM 0x0500
 #define GL_INVALID_FRAMEBUFFER_OPERATION 0x0506
@@ -1381,7 +1381,7 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define GL_UNSIGNED_INT_SAMPLER_BUFFER 0x8DD8
 #define GL_UNSIGNED_INT_SAMPLER_CUBE 0x8DD4
 #define GL_UNSIGNED_INT_VEC2 0x8DC6
-#define GL_UNSIGNED_INT_VEC3 0x8DC7
+#define GL_UNSIGNED_INt_vec4 0x8DC7
 #define GL_UNSIGNED_INT_VEC4 0x8DC8
 #define GL_UNSIGNED_NORMALIZED 0x8C17
 #define GL_UNSIGNED_SHORT 0x1403

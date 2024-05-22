@@ -9,7 +9,6 @@ uniform int 		uRand;
 uniform int			uFrameCount;
 uniform sampler2D	currentFrame;
 
-
 struct Sphere {
     vec4 	origin;
     vec4 	color;
@@ -18,8 +17,10 @@ struct Sphere {
 
 struct Camera
 {
-	vec3	origin;
-	vec3	direction;
+	vec4	origin;
+	vec4	direction;
+	mat4	rotation_matrix_x;
+	mat4	rotation_matrix_y;
 };
 
 
@@ -164,16 +165,12 @@ void	calcul_lc(hit_info hit, out vec3 light)
 
 }
 
-
-
 vec3	per_pixel(t_ray ray)
 {
-	t_ray		first_ray;
 	hit_info	hit;
 	vec3		light = vec3(0.0, 0.0, 0.0);
 	vec3		color = vec3(1.0, 1.0, 1.0);
 
-	first_ray = ray;
 	for (int i = 0; i < 50; i++)
 	{
 		if (hit_objects(ray, hit))
@@ -192,12 +189,45 @@ vec3	per_pixel(t_ray ray)
 }
 
 
+vec4 multiply_matrix_vector(mat4 m, vec4 vector)
+{
+	vec4 result;
+
+	result.x = m[0][0] * vector.x + m[0][1] * vector.y + m[0][2] * vector.z;
+	result.y = m[1][0] * vector.x + m[1][1] * vector.y + m[1][2] * vector.z;
+	result.z = m[2][0] * vector.x + m[2][1] * vector.y + m[2][2] * vector.z;
+	result.w = 0;
+
+	return (result);
+}
+
+t_ray	calculate_ray(vec2 uv)
+{
+	t_ray	ray;
+	float 	fov = tan(100 / 2.0f * 3.14 / 180.0f);
+	
+	uv.x *= fov;
+	uv.y *= fov;
+
+	vec4	direction = vec4(uv.x, uv.y, -1.0f, 0.0f);
+
+	direction = multiply_matrix_vector(scene.camera.rotation_matrix_x, direction);
+	direction = multiply_matrix_vector(scene.camera.rotation_matrix_y, direction);
+	direction = normalize(direction);
+
+	ray.origin = scene.camera.origin.xyz;
+	ray.dir = direction.xyz;
+	return (ray);
+}
+
+
 void main()
 {
 	vec2 uv = gl_FragCoord.xy / resolution * 2.0 - 1.0;
 	uv.x *= resolution.x / resolution.y;
-	t_ray ray = t_ray(scene.camera.origin, vec3(uv, -1.0));
-	
+
+	t_ray ray = calculate_ray(uv);
+
 	vec4 color = vec4(per_pixel(ray), 1.0);
 	vec4 currentColor = texture(currentFrame, gl_FragCoord.xy / resolution.xy);
 	
