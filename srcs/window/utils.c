@@ -12,6 +12,8 @@
 
 #include "RT.h"
 
+extern Scene scene;
+
 void	apply_rotation_matrix_x(float angle, float (*matrix)[4])
 {
 	float	cos_theta;
@@ -50,6 +52,7 @@ void	apply_rotation_matrix_y(float angle, float (*matrix)[4])
 
 int	getFPScounter()
 {
+	static int		real_fps = 0;
 	static int		fps = 0;
 	static double	previousTime = 0;
 	double			currentTime = glfwGetTime();
@@ -57,14 +60,15 @@ int	getFPScounter()
 	if (previousTime == 0)
 		previousTime = glfwGetTime();
 	
-	
 	fps++;
 	if (currentTime - previousTime >= 1.0)
 	{
-		printf("FPS: %d\n", fps);
-		
+		real_fps = fps;
 		fps = 0;
 		previousTime = currentTime;
 	}
+	fflush(stdout);
+	printf("FPS: %d, Samples: %d            \r", real_fps, scene.frameCount);
+
 	return (fps);
 }
