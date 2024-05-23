@@ -15,11 +15,18 @@
 
 # include "RT.h"
 
-typedef struct {
+typedef struct
+{
 	t_vec4	origin;
+} Sphere;
+
+typedef struct 
+{
+	t_vec4	type;
 	t_vec4	color;
 	t_vec4	mat;
-} Sphere;
+	Sphere	sphere;
+} Object;
 
 
 #endif

@@ -46,7 +46,7 @@ typedef struct s_vec4 {
 
 typedef struct s_scene
 {
-	Sphere	obj[objNum];
+	Object	obj[objNum];
 	Camera	camera;
 	int		frameCount;
 } Scene;
