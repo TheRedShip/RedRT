@@ -22,9 +22,16 @@ typedef struct
 	t_vec4	mat;
 } Sphere;
 
+typedef struct
+{
+	t_vec4	origin;
+	t_vec4	normal;
+} Plane;
+
 typedef struct 
 {
 	Sphere	sphere[objNum];
+	Plane	plane[objNum];
 } Object;
 
 #endif

@@ -15,6 +15,7 @@ struct Sphere {
 	vec4	mat;
 };
 
+
 struct Object
 {
 	Sphere	sphere;
