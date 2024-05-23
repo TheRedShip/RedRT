@@ -14,55 +14,99 @@
 
 void	init_scene(Scene *scene, Object *object)
 {
-	object->sphere[0].origin = (t_vec4){75.0f, 25.0f, 0.0f, 60.0f};
-	object->sphere[0].color = (t_vec4){1.0f, 1.0f, 1.0f, 0.0f};
-	object->sphere[0].mat = (t_vec4){0.0, 1, 0, 0};
+	// object[0].sphere.origin = (t_vec4){75.0f, 25.0f, 0.0f, 60.0f};
+	// object[0].color = (t_vec4){1.0f, 1.0f, 1.0f, 0.0f};
+	// object[0].mat = (t_vec4){0.0, 1, 0, 0};
+	// object[0].type = 1;
 
-	object->sphere[1].origin = (t_vec4){0.0f, 2.80f, -3.0f, 1.0f};
-	object->sphere[1].color = (t_vec4){1.0f, 1.0f, 1.0f, 0.0f};
-	object->sphere[1].mat = (t_vec4){1.0f, 0, 0, 0};
+	// object[1].sphere.origin = (t_vec4){0.0f, 2.80f, -3.0f, 1.0f};
+	// object[1].color = (t_vec4){1.0f, 1.0f, 1.0f, 0.0f};
+	// object[1].mat = (t_vec4){1.0f, 0, 0, 0};
+	// object[1].type = 1;
 
-	object->sphere[2].origin = (t_vec4){0.8f, 0.35f, -2.3f, 0.5f};
-	object->sphere[2].color = (t_vec4){1.0f, 1.0f, 1.0f, 0.0f};
-	object->sphere[2].mat = (t_vec4){0, 0, 0, 0};
+	// object[2].sphere.origin = (t_vec4){0.8f, 0.35f, -2.3f, 0.5f};
+	// object[2].color = (t_vec4){1.0f, 1.0f, 1.0f, 0.0f};
+	// object[2].mat = (t_vec4){0, 0, 0, 0};
+	// object[2].type = 1;
 
-	object->sphere[3].origin = (t_vec4){0.0f, 0.70f, -1.0f, 0.75f};
-	object->sphere[3].color = (t_vec4){0.2f, 1.0f, 0.2f, 0.0f};
-	object->sphere[3].mat = (t_vec4){0, 0, 0, 0};
+	// object[3].sphere.origin = (t_vec4){0.0f, 0.70f, -1.0f, 0.75f};
+	// object[3].color = (t_vec4){0.2f, 1.0f, 0.2f, 0.0f};
+	// object[3].mat = (t_vec4){0, 0, 0, 0};
+	// object[3].type = 1;
 
-	object->sphere[4].origin = (t_vec4){-0.9f, 0.70f, 0.6f, 0.9f};
-	object->sphere[4].color = (t_vec4){0.2f, 0.2f, 1.0f, 0.0f};
-	object->sphere[4].mat = (t_vec4){0, 0, 0, 0};
+	// object[4].sphere.origin = (t_vec4){-0.9f, 0.70f, 0.6f, 0.9f};
+	// object[4].color = (t_vec4){0.2f, 0.2f, 1.0f, 0.0f};
+	// object[4].mat = (t_vec4){0, 0, 0, 0};\
+	// object[4].type = 1;
 
-	object->sphere[5].origin = (t_vec4){0.0f, -25.0f, 0.0f, 25.0f};
-	object->sphere[5].color = (t_vec4){1.0f, 0.2f, 0.2f, 0.0f};
-	object->sphere[5].mat = (t_vec4){0.2, 0, 0, 0};
-
-	// Sphere sphere[objNum] = {{ {75.0f, 25.0f, 0.0f, 60.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0.0,1,0,0} },
+	// object[5].sphere.origin = (t_vec4){0.0f, -25.0f, 0.0f, 25.0f};
+	// object[5].color = (t_vec4){1.0f, 0.2f, 0.2f, 0.0f};
+	// object[5].mat = (t_vec4){0.2, 0, 0, 0};
+	// object[5].type = 1;
 	
-	// 						{ {0.0f, 2.80f, -3.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {1.0f,0,0,0} },
+	object[0].sphere.origin = (t_vec4){0,4,0,0.5};
+	object[0].color = (t_vec4){1.0f, 1.0f, 1.0f,0};
+	object[0].mat = (t_vec4){0,5,0,0};
+	object[0].type = 1;
 
-	// 						{ {0.8f, 0.35f, -2.3f, 0.5f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0,0,0,0} },
-	// 						{ {0.0f, 0.70f, -1.0f, 0.75f}, {0.2f, 1.0f, 0.2f, 0.0f}, {0,0,0,0} },
-	// 						{ {-0.9f, 0.70f, 0.6f, 0.9f}, {0.2f, 0.2f, 1.0f, 0.0f}, {0,0,0,0} },
-							
+	object[1].sphere.origin = (t_vec4){0,0.5,0,1};
+	object[1].color = (t_vec4){1.0f, 1.0f, 1.0f,0};
+	object[1].mat = (t_vec4){1,0,0,0};
+	object[1].type = 1;
 
-	// 						{ {0.0f, -25.0f, 0.0f, 25.0f}, {1.0f, 0.2f, 0.2f, 0.0f}, {0.2,0,0,0} }};
+	object[2].sphere.origin = (t_vec4){1.5,0.25,0,0.5};
+	object[2].color = (t_vec4){1.0f, 0.0f, 0.0f,0};
+	object[2].mat = (t_vec4){0,0,0,0};
+	object[2].type = 1;
+
+	object[3].sphere.origin = (t_vec4){-1.5,0.25,0,0.5};
+	object[3].color = (t_vec4){0.0f, 1.0f, 0.0f,0};
+	object[3].mat = (t_vec4){0,0,0,0};
+	object[3].type = 1;
+
+	object[4].sphere.origin = (t_vec4){0,0.25,-1.5,0.5};
+	object[4].color = (t_vec4){0.0f, 0.0f, 1.0f,0};
+	object[4].mat = (t_vec4){0,0,0,0};
+	object[4].type = 1;
+
+	object[5].plane.origin = (t_vec4){0,0,0,0};
+	object[5].plane.normal = (t_vec4){0,1,0,0};
+	object[5].color = (t_vec4){0.8f, 0.8f, 0.8f,0};
+	object[5].mat = (t_vec4){0.995,0,0,0};
+	object[5].type = 2;
+
+	object[6].plane.origin = (t_vec4){0,0,-4,0};
+	object[6].plane.normal = (t_vec4){0,0,1,0};
+	object[6].color = (t_vec4){0.8f, 0.8f, 0.8f,0};
+	object[6].mat = (t_vec4){0.995,0,0,0};
+	object[6].type = 2;
+
+	object[7].plane.origin = (t_vec4){0,0,4,0};
+	object[7].plane.normal = (t_vec4){0,0,-1,0};
+	object[7].color = (t_vec4){0.8f, 0.8f, 0.8f,0};
+	object[7].mat = (t_vec4){0.995,0,0,0};
+	object[7].type = 2;
+
+	object[8].plane.origin = (t_vec4){4,0,0,0};
+	object[8].plane.normal = (t_vec4){-1,0,0,0};
+	object[8].color = (t_vec4){0.8f, 0.8f, 0.8f,0};
+	object[8].mat = (t_vec4){0.995,0,0,0};
+	object[8].type = 2;
+
+	object[9].plane.origin = (t_vec4){-4,0,0,0};
+	object[9].plane.normal = (t_vec4){1,0,0,0};
+	object[9].color = (t_vec4){0.8f, 0.8f, 0.8f,0};
+	object[9].mat = (t_vec4){0.995,0,0,0};
+	object[9].type = 2;
+
+	object[10].plane.origin = (t_vec4){0,10,0,0};
+	object[10].plane.normal = (t_vec4){0,-1,0,0};
+	object[10].color = (t_vec4){0.8f, 0.8f, 0.8f,0};
+	object[10].mat = (t_vec4){0.995,0,0,0};
+	object[10].type = 2;
+	
 
 
-	// scene->obj[0].origin = (t_vec4){0.0f, -25.0f, 0.0f, 25.0f};
-	// scene->obj[0].color = (t_vec4){1.0f, 1.0f, 1.0f, 1.0f};
-	// scene->obj[0].mat = (t_vec4){0.0f, 1.0f, 0.0f, 0.0f};
 
-	// for (int i = 1; i < objNum - 1; i++)
-	// {
-	// 	scene->obj[i].origin = (t_vec4){(float)(rand() % 100 - 50), (float)(rand() % 100 - 50), (float)(rand() % 100 - 50), (float)(rand() % 100) / 50 + 0.01};
-	// 	scene->obj[i].color = (t_vec4){(float)(rand() % 100) / 100, (float)(rand() % 100) / 100, (float)(rand() % 100) / 100, 1.0f};
-	// 	scene->obj[i].mat = (t_vec4){(float)(rand() % 100) / 100, 0.0f, 0.0f, 0.0f};
-	// }
-
-	// for (int i = 0; i < objNum; i++)
-		// scene->obj[i].sphere = sphere[i];
-
-	scene->camera.origin = (t_vec4){2.0f, 2, 2.0f};
+	scene->camera.origin = (t_vec4){0,3,4};
 }

@@ -17,10 +17,8 @@ extern Scene scene;
 void	variableToShader(GLuint program)
 {
 	glUniform2f(glGetUniformLocation(program, "resolution"), (float)WIDTH, (float)HEIGHT);
-	glUniform1i(glGetUniformLocation(program, "numberObjects"), objNum);
 	glUniform1f(glGetUniformLocation(program, "uTime"), (float)(glfwGetTime()));
 	glUniform1i(glGetUniformLocation(program, "uRand"), rand());
 	glUniform1i(glGetUniformLocation(program, "uFrameCount"), scene.frameCount);
 	glUniform1i(glGetUniformLocation(program, "currentFrame"), 0);
-	glUniform1i(glGetUniformLocation(program, "accumFrame"), 1);
 }

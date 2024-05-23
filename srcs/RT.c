@@ -13,11 +13,11 @@
 #include "RT.h"
 
 Scene 	scene;
-Object	object;
+Object	object[objNum];
 
 int main(void)
 {
-	init_scene(&scene, &object);
+	init_scene(&scene, object);
 
 	GLFWwindow *window = setupGLFW();
 	GLuint program = setupShaderProgram();
@@ -38,14 +38,15 @@ int main(void)
 	glUniformBlockBinding(program, scene_block, 0);
 	glBindBufferBase(GL_UNIFORM_BUFFER, scene_block, scene_buffer);
 
-	GLuint sphere_buffer;
-	glGenBuffers(1, &sphere_buffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, sphere_buffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere) * objNum, &object.sphere, GL_DYNAMIC_DRAW);
+	GLuint object_buffer;
+	glGenBuffers(1, &object_buffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, object_buffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Object) * objNum, &object, GL_STATIC_DRAW);
 
-	GLuint sphere_block = glGetUniformBlockIndex(program, "SphereBlock");
-	glUniformBlockBinding(program, sphere_block, 1);
-	glBindBufferBase(GL_UNIFORM_BUFFER, sphere_block, sphere_buffer);
+	GLuint object_binding = 1;
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, object_binding, object_buffer);
+
+
 
 	GLuint currentFrameTex, accumFrameTex, framebuffer;
     glGenTextures(1, &currentFrameTex);

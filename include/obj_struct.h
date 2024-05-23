@@ -18,8 +18,6 @@
 typedef struct
 {
 	t_vec4	origin;
-	t_vec4	color;
-	t_vec4	mat;
 } Sphere;
 
 typedef struct
@@ -30,8 +28,12 @@ typedef struct
 
 typedef struct 
 {
-	Sphere	sphere[objNum];
-	Plane	plane[objNum];
+	Sphere	sphere;
+	Plane	plane;
+	t_vec4	color;
+	t_vec4	mat;
+	vec3	padding;
+	int		type;
 } Object;
 
 #endif

@@ -1,7 +1,7 @@
-#version 330 core
+# version 430 core
+# define objNum 100
 out vec4 fragColor;
 
-uniform int 		numberObjects;
 uniform vec2 		resolution;
 uniform float 		uTime;
 uniform int 		uRand;
@@ -11,19 +11,25 @@ uniform sampler2D	currentFrame;
 
 struct Sphere {
     vec4 	origin;
+};
+
+struct Plane {
+	vec4	origin;
+	vec4	normal;
+};
+
+
+struct Object {
+	Sphere	sphere;
+	Plane	plane;
 	vec4	color;
 	vec4	mat;
+	vec3	padding;
+	int		type;
 };
 
 
-struct Object
-{
-	Sphere	sphere;
-};
-
-
-struct Camera
-{
+struct Camera {
 	vec4	origin;
 	vec4	direction;
 	mat4	rotation_matrix_x;
@@ -35,7 +41,7 @@ struct hit_info {
 	vec3 	position;
 	vec3 	normal;
 	float	dist;
-	Sphere	obj;
+	Object	obj;
 };
 
 struct t_ray {
@@ -44,8 +50,7 @@ struct t_ray {
 };
 
 
-struct Scene
-{
+struct Scene {
 	Camera	camera;
 	int		frameCount;
 };
@@ -54,42 +59,58 @@ layout(std140) uniform SceneBlock {
     Scene scene;
 };
 
-layout(std140) uniform SphereBlock {
-    Sphere test[2];
+layout(std430, binding = 1) buffer ObjectsBuffer {
+    Object objects[objNum];
 };
 
 
-bool raySphereIntersect(t_ray ray, Sphere sphere, out hit_info hit)
+bool rayPlaneIntersect(t_ray ray, Object object, out hit_info hit)
 {
-	vec3 oc = ray.origin - sphere.origin.xyz;
+	float t = dot(object.plane.origin.xyz - ray.origin, object.plane.normal.xyz) / dot(ray.dir, object.plane.normal.xyz);
+	if (t < 0.0) return false;
+	hit.position = ray.origin + t * ray.dir;
+	hit.normal = object.plane.normal.xyz;
+	hit.dist = t;
+	hit.obj = object;
+	return true;
+}
+
+bool raySphereIntersect(t_ray ray, Object object, out hit_info hit)
+{
+	vec3 oc = ray.origin - object.sphere.origin.xyz;
 	float a = dot(ray.dir, ray.dir);
 	float b = 2.0 * dot(oc, ray.dir);
-	float c = dot(oc, oc) - sphere.origin.w * sphere.origin.w;
+	float c = dot(oc, oc) - object.sphere.origin.w * object.sphere.origin.w;
 	float discriminant = b * b - 4 * a * c;
 	if (discriminant < 0.0) return false;
 	float t = (-b - sqrt(discriminant)) / (2.0 * a);
 	hit.position = ray.origin + t * ray.dir;
-	hit.normal = normalize(hit.position - sphere.origin.xyz);
+	hit.normal = normalize(hit.position - object.sphere.origin.xyz);
 	hit.dist = t;
+	hit.obj = object;
 	return true;
 }
 
-bool	hit_objects(t_ray ray, out hit_info hit)
+bool	hit_objects(t_ray ray, Object obj, out hit_info hit)
+{
+	hit.dist = -1.0f;
+	if (obj.type == 1)
+		return (raySphereIntersect(ray, obj, hit));
+	else if (obj.type == 2)
+		return (rayPlaneIntersect(ray, obj, hit));
+	return false;
+}
+
+bool	trace_ray(t_ray ray, out hit_info hit)
 {
 	hit_info tmp_hit;
 
 	hit.dist = -1.0f;
-	for (int i = 0; i < numberObjects; i++) {
-		if (test[i].origin.w == 0.0f) break;
-		if (raySphereIntersect(ray, test[i], tmp_hit)) {\
+	for (int i = 0; i < objNum; i++) {
+		if (objects[i].type == 0) break;
+		if (hit_objects(ray, objects[i], tmp_hit))
 			if (tmp_hit.dist > 0.0f && (tmp_hit.dist < hit.dist || hit.dist < 0.0f))
-			{
-				hit.position = tmp_hit.position;
-				hit.normal = tmp_hit.normal;
-				hit.dist = tmp_hit.dist;
-				hit.obj = test[i];
-			}
-		}
+				hit = tmp_hit;
 	}
 	return (hit.dist >= 0.0f);
 }
@@ -160,7 +181,7 @@ void	calcul_lc(hit_info hit, out vec3 light)
 	// t_ray		shadow_ray = t_ray(hit.position + hit.normal * 0.001, light_direction);
 	// hit_info	shadow_hit;
 
-	// hit_objects(shadow_ray, shadow_hit);
+	// trace_ray(shadow_ray, shadow_hit);
 	// if (!(shadow_hit.dist > 0.0 && shadow_hit.dist < length(light_pos - hit.position)))
 	// {
 	// 	diffuse_ratio = max(0.0, dot(hit.normal, light_direction));
@@ -180,19 +201,16 @@ vec3	per_pixel(t_ray ray)
 
 	for (int i = 0; i < 50; i++)
 	{
-		if (hit_objects(ray, hit))
-		{
-			new_ray(hit, ray);
-			color *= hit.obj.color.rgb;
-			calcul_lc(hit, light);
-			if (hit.obj.mat.g > 0.0)
-				break ;
-		}
-		else
+		if (!trace_ray(ray, hit))
 		{
 			// light += vec3(0.5, 0.8, 0.92);
-			break ;
+			break;
 		}
+		new_ray(hit, ray);
+		color *= hit.obj.color.rgb;
+		calcul_lc(hit, light);
+		if (hit.obj.mat.g > 0.0)
+			break ;
 	}
 	return (color * light);
 }
@@ -237,7 +255,6 @@ void main()
 	vec2 uv = antialiasing / resolution * 2.0 - 1.0;
 	uv.x *= resolution.x / resolution.y;
 
-	
 	t_ray ray = calculate_ray(uv);
 	hit_info hit;
 
