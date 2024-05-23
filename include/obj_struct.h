@@ -24,11 +24,7 @@ typedef struct
 
 typedef struct 
 {
-	t_vec4	type;
-	t_vec4	color;
-	t_vec4	mat;
-	Sphere	sphere;
+	Sphere	sphere[objNum];
 } Object;
-
 
 #endif

@@ -17,7 +17,7 @@
 
 typedef struct s_scene Scene;
 
-void		init_scene(Scene *scene);
+void		init_scene(Scene *scene, Object *object);
 
 GLFWwindow	*setupGLFW(void);
 GLuint		setupShaderProgram(void);

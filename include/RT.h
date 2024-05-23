@@ -46,7 +46,6 @@ typedef struct s_vec4 {
 
 typedef struct s_scene
 {
-	Object	obj[objNum];
 	Camera	camera;
 	int		frameCount;
 } Scene;

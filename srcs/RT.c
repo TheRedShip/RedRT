@@ -13,10 +13,11 @@
 #include "RT.h"
 
 Scene 	scene;
+Object	object;
 
 int main(void)
 {
-	init_scene(&scene);
+	init_scene(&scene, &object);
 
 	GLFWwindow *window = setupGLFW();
 	GLuint program = setupShaderProgram();
@@ -37,13 +38,10 @@ int main(void)
 	glUniformBlockBinding(program, scene_block, 0);
 	glBindBufferBase(GL_UNIFORM_BUFFER, scene_block, scene_buffer);
 
-	Sphere sphere[objNum] = { {{0.0f, 5.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0.0, 1, 0, 0}},
-						{{0.0f, 10.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0.0, 1, 0, 0}} };
-
 	GLuint sphere_buffer;
 	glGenBuffers(1, &sphere_buffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, sphere_buffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere) * objNum, &sphere, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere) * objNum, &object.sphere, GL_DYNAMIC_DRAW);
 
 	GLuint sphere_block = glGetUniformBlockIndex(program, "SphereBlock");
 	glUniformBlockBinding(program, sphere_block, 1);
@@ -83,15 +81,8 @@ int main(void)
 		glBindBufferBase(GL_UNIFORM_BUFFER, scene_block, scene_buffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(scene), &scene);
 
-		glBindBufferBase(GL_UNIFORM_BUFFER, sphere_block, sphere_buffer);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Sphere) * objNum, &sphere);
-
-		// sphere.x = cos(glfwGetTime());
-
-		// scene.obj[1].sphere.origin.x = 1.5 * cos(glfwGetTime());  // Example of moving the sphere
-		// scene.obj[1].sphere.origin.y = 1.5 * sin(glfwGetTime());  // Example of moving the sphere
-		// scene.obj[2].sphere.origin.x = 1.5 * -cos(glfwGetTime());  // Example of moving the sphere
-		// scene.obj[2].sphere.origin.y = 1.5 * -sin(glfwGetTime());  // Example of moving the sphere
+		// glBindBufferBase(GL_UNIFORM_BUFFER, sphere_block, sphere_buffer);
+		// glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Sphere) * objNum, &object.sphere);
 
 		glBindVertexArray(vertex_array);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
