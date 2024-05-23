@@ -18,6 +18,8 @@
 typedef struct
 {
 	t_vec4	origin;
+	t_vec4	color;
+	t_vec4	mat;
 } Sphere;
 
 typedef struct 

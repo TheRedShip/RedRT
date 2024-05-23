@@ -12,7 +12,7 @@
 
 #include "RT.h"
 
-Scene scene;
+Scene 	scene;
 
 int main(void)
 {
@@ -33,9 +33,21 @@ int main(void)
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(scene), &scene, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	GLuint blockIndex = glGetUniformBlockIndex(program, "SceneBlock");
-	glUniformBlockBinding(program, blockIndex, 0);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, scene_buffer);
+	GLuint scene_block = glGetUniformBlockIndex(program, "SceneBlock");
+	glUniformBlockBinding(program, scene_block, 0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, scene_block, scene_buffer);
+
+	Sphere sphere[objNum] = { {{0.0f, 5.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0.0, 1, 0, 0}},
+						{{0.0f, 10.0f, 0.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 0.0f}, {0.0, 1, 0, 0}} };
+
+	GLuint sphere_buffer;
+	glGenBuffers(1, &sphere_buffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, sphere_buffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Sphere) * objNum, &sphere, GL_DYNAMIC_DRAW);
+
+	GLuint sphere_block = glGetUniformBlockIndex(program, "SphereBlock");
+	glUniformBlockBinding(program, sphere_block, 1);
+	glBindBufferBase(GL_UNIFORM_BUFFER, sphere_block, sphere_buffer);
 
 	GLuint currentFrameTex, accumFrameTex, framebuffer;
     glGenTextures(1, &currentFrameTex);
@@ -68,12 +80,18 @@ int main(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 		variableToShader(program);
+		glBindBufferBase(GL_UNIFORM_BUFFER, scene_block, scene_buffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(scene), &scene);
 
-		// scene.obj[0].origin[0] = 1.5 * cos(glfwGetTime());  // Example of moving the sphere
-		// scene.obj[0].origin[1] = 1.5 * sin(glfwGetTime());  // Example of moving the sphere
-		// scene.obj[2].origin[0] = 1.5 * -cos(glfwGetTime());  // Example of moving the sphere
-		// scene.obj[2].origin[1] = 1.5 * -sin(glfwGetTime());  // Example of moving the sphere
+		glBindBufferBase(GL_UNIFORM_BUFFER, sphere_block, sphere_buffer);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Sphere) * objNum, &sphere);
+
+		// sphere.x = cos(glfwGetTime());
+
+		// scene.obj[1].sphere.origin.x = 1.5 * cos(glfwGetTime());  // Example of moving the sphere
+		// scene.obj[1].sphere.origin.y = 1.5 * sin(glfwGetTime());  // Example of moving the sphere
+		// scene.obj[2].sphere.origin.x = 1.5 * -cos(glfwGetTime());  // Example of moving the sphere
+		// scene.obj[2].sphere.origin.y = 1.5 * -sin(glfwGetTime());  // Example of moving the sphere
 
 		glBindVertexArray(vertex_array);
 		glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -15,7 +15,7 @@
 
 # define WIDTH 1920
 # define HEIGHT 1080
-# define objNum 1000
+# define objNum 100
 
 # define GLFW_INCLUDE_NONE
 # include <stdio.h>

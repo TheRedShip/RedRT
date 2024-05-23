@@ -11,6 +11,8 @@ uniform sampler2D	currentFrame;
 
 struct Sphere {
     vec4 	origin;
+	vec4	color;
+	vec4	mat;
 };
 
 
@@ -47,13 +49,17 @@ struct t_ray {
 
 struct Scene
 {
-	Object	obj[1000];
+	Object	obj[100];
 	Camera	camera;
 	int		frameCount;
 };
 
 layout(std140) uniform SceneBlock {
     Scene scene;
+};
+
+layout(std140) uniform SphereBlock {
+    Sphere test[2];
 };
 
 
@@ -79,7 +85,7 @@ bool	hit_objects(t_ray ray, out hit_info hit)
 	hit.dist = -1.0f;
 	for (int i = 0; i < numberObjects; i++) {
 		if (scene.obj[i].type.x == 0.0f) break;
-		if (raySphereIntersect(ray, scene.obj[i].sphere, tmp_hit)) {
+		if (raySphereIntersect(ray, scene.obj[i].sphere, tmp_hit)) {\
 			if (tmp_hit.dist > 0.0f && (tmp_hit.dist < hit.dist || hit.dist < 0.0f))
 			{
 				hit.position = tmp_hit.position;
@@ -235,9 +241,13 @@ void main()
 	vec2 uv = antialiasing / resolution * 2.0 - 1.0;
 	uv.x *= resolution.x / resolution.y;
 
-	// fragColor = vec4(1);
+	
 	t_ray ray = calculate_ray(uv);
 	hit_info hit;
+
+	if (raySphereIntersect(ray, test[1], hit))
+		fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	return ;
 
 	vec4 color = vec4(sqrt(per_pixel(ray)), 1.0);
 	vec4 currentColor = texture(currentFrame, gl_FragCoord.xy / resolution.xy);
